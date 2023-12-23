@@ -1,22 +1,37 @@
 package com.globant.utils.basePage;
 
-import org.openqa.selenium.WebDriver;
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.pagefactory.AppiumFieldDecorator;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-// BasePage.java
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.PageFactory;
+public class BasePage {
+    protected AppiumDriver driver;
 
-public abstract class BasePage {
-    protected WebDriver driver;
-
-    public BasePage(WebDriver driver) {
+    public BasePage(AppiumDriver driver) {
         this.driver = driver;
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(new AppiumFieldDecorator(driver), this);
     }
 
-    // Common methods for navigation, waiting, etc. (add as needed)
+    // Common methods for finding elements with explicit waits
+    public WebElement findElementWithWait(By locator) {
+        return new WebDriverWait(driver, 10).until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    // Common methods for tapping elements (using TouchAction for reliability)
+    public void tapElement(WebElement element) {
+        // Implement tapping logic using TouchAction
+    }
+
+    // Common methods for scrolling to elements (if needed)
+    public void scrollToElement(WebElement element) {
+        // Implement scrolling logic using TouchAction or other methods
+    }
 }
+
+
 
 
