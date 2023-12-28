@@ -1,27 +1,69 @@
 package com.globant.utils.baseTest;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.remote.MobileCapabilityType;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.log4j.Logger;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Parameters;
+import org.testng.asserts.SoftAssert;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Objects;
 
 public class BaseTest {
-    protected WebDriver driver;
+
+    SoftAssert softAssert = new SoftAssert();
+
+    protected AndroidDriver driver;
+
+    Dotenv dotenv = Dotenv.load();
+
+    public Logger log = Logger.getLogger(BaseTest.class);
 
     @BeforeClass
-    @Parameters({"url", "driver-path"})
-    public void setUpBase(String url, String driverPath) {
-        System.setProperty("webdriver.chrome.driver", driverPath);
-        driver = new ChromeDriver();
-        driver.navigate().to(url);
+    public void setupBase() {
+        DesiredCapabilities capabilities = this.enviromentSetup();
+
+        // Instantiate the driver
+        try {
+            driver = new AndroidDriver(new URL("http://localhost:4723"), capabilities);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private DesiredCapabilities enviromentSetup(){
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+
+        // Set up desired capabilities for your device and app
+        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, dotenv.get("DEVICE_NAME"));
+        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, dotenv.get("PLATFORM_NAME"));
+
+        capabilities.setCapability("appPackage", dotenv.get("APP_PACKAGE"));
+        capabilities.setCapability("appActivity", dotenv.get("APP_ACTIVITY"));
+        capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, dotenv.get("AUTOMATION_NAME"));
+
+        //for the installation
+        File apkFile = new File(Objects.requireNonNull(dotenv.get("APP")));
+        String apkPath = apkFile.getAbsolutePath();
+        capabilities.setCapability(MobileCapabilityType.APP, apkPath);
+
+        log.info(capabilities);
+
+        return capabilities;
     }
 
     @AfterClass
-    public void tearDownBase() {
-        // Close browser
-        driver.quit();
+    public void teardown() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
-
 }
+
 

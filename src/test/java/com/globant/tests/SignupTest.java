@@ -1,4 +1,21 @@
 package com.globant.tests;
 
-public class SignupTest {
+import com.globant.pages.LoginPage;
+import com.globant.utils.baseTest.BaseTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+public class SignupTest extends BaseTest {
+    private LoginPage loginPage;
+
+    @BeforeClass
+    public void setUp() {
+        loginPage = new LoginPage(driver);
+    }
+
+    @Test
+    public void signUpTest() {
+        loginPage.navigateToLoginPage();
+        loginPage.fillFormSignUp();
+    }
 }
